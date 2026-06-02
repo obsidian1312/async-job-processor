@@ -14,12 +14,12 @@ import concurrencyConfig from '../../common/config/concurrency.config';
   imports: [
     RedisModule,
     MongooseModule.forFeature([
-      { name: EventJob.name, schema: EventJobSchema }
+      { name: EventJob.name, schema: EventJobSchema },
     ]),
     BullModule.forRootAsync({
       imports: [ConfigModule.forFeature(concurrencyConfig)],
       inject: [concurrencyConfig.KEY],
-      useFactory: async (config: ConfigType<typeof concurrencyConfig>) => ({
+      useFactory: (config: ConfigType<typeof concurrencyConfig>) => ({
         connection: {
           host: config.redisHost,
           port: config.redisPort,
@@ -28,9 +28,9 @@ import concurrencyConfig from '../../common/config/concurrency.config';
     }),
     BullModule.registerQueue({
       name: 'event-queue',
-    })
+    }),
   ],
   controllers: [EventsController],
   providers: [EventsService, EventsProcessor, ConcurrencyService],
 })
-export class EventsModule { }
+export class EventsModule {}

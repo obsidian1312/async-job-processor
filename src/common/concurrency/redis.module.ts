@@ -15,4 +15,4 @@ import { REDIS } from '../config/concurrency.config';
   ],
   exports: [REDIS],
 })
-export class RedisModule { }
+export class RedisModule {}

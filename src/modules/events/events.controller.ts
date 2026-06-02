@@ -3,17 +3,15 @@ import { EventsService } from './events.service';
 
 @Controller('events')
 export class EventsController {
-    constructor(
-        private readonly eventsService: EventsService
-    ) {}
+  constructor(private readonly eventsService: EventsService) {}
 
-    @Post('trigger')
-    async trigger() {
-        return await this.eventsService.createJob();
-    }
+  @Post('trigger')
+  async trigger() {
+    return await this.eventsService.createJob();
+  }
 
-    @Get('stats')
-    async stats() {
-        return await this.eventsService.getStats();
-    }
+  @Get('stats')
+  async stats() {
+    return await this.eventsService.getStats();
+  }
 }

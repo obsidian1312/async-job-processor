@@ -1,5 +1,5 @@
-import { registerAs } from "@nestjs/config";
+import { registerAs } from '@nestjs/config';
 
 export default registerAs('database', () => ({
-    mongoURI: process.env.MONGO_URI!
-}))
+  mongoURI: process.env.MONGO_URI!,
+}));

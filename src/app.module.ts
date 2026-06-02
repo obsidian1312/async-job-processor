@@ -12,10 +12,9 @@ import { EventsModule } from './events/events.module';
     }),
 
     MongooseModule.forRoot(process.env.MONGO_URI!),
-
     EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

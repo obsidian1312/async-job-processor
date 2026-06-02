@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { EventJobStatus } from './enum/event-job-status.enum';
+import { EventJobStatus } from '../enum/event-job-status.enum';
 
 export type EventJobDocument = HydratedDocument<EventJob>;
 
@@ -12,7 +12,7 @@ export class EventJob {
     required: true,
     index: true,
   })
-  jobId!: string;
+  userId!: string;
 
   @Prop({
     required: true,

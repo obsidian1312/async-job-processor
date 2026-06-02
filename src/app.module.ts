@@ -16,7 +16,7 @@ import { LoggingModule } from './common/logger/logger.module';
     }),
     MongooseModule.forRootAsync({
       inject: [databaseConfig.KEY],
-      useFactory: async (config: ConfigType<typeof databaseConfig>) => ({
+      useFactory: (config: ConfigType<typeof databaseConfig>) => ({
         uri: config.mongoURI,
       }),
     }),
@@ -26,4 +26,4 @@ import { LoggingModule } from './common/logger/logger.module';
     LoggingModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -4,12 +4,16 @@ import { Model } from 'mongoose';
 import { EventJob, EventJobDocument } from './schema/event-job.schema';
 import { randomUUID } from 'node:crypto';
 import { InjectModel } from '@nestjs/mongoose';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class EventsService {
     constructor(
         @InjectModel(EventJob.name)
         private readonly model: Model<EventJobDocument>,
+        @InjectQueue('event-queue')
+        private readonly queue: Queue,
     ) { }
 
     public async createJob() {
@@ -19,6 +23,22 @@ export class EventsService {
             retries: 0,
             result: {},
         });
+
+        await this.queue.add(
+            'process-event',
+            {
+                jobId: job._id.toString(),
+            },
+            {
+                attempts: 4,
+                backoff: {
+                    type: 'exponential',
+                    delay: 1000,
+                },
+            },
+        );
+
+        console.log('JOB ADDED', job._id);
 
         return {
             success: true,

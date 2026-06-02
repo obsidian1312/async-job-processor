@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ConcurrencyService } from '../../common/concurrency/concurrency.service';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class EventsService {
@@ -15,12 +16,17 @@ export class EventsService {
         @InjectQueue('event-queue')
         private readonly queue: Queue,
         private readonly concurrency: ConcurrencyService,
-    ) { }
+        private readonly logger: PinoLogger,
+    ) {
+        this.logger.setContext(EventsService.name);
+    }
 
     public async createJob() {
         const userId = this.getUserId();
 
         await this.concurrency.acquire(userId);
+
+        this.logger.info({ userId }, 'Creating job');
 
         const job = await this.model.create({
             userId,
@@ -29,10 +35,14 @@ export class EventsService {
             result: {},
         });
 
+        this.logger.info({ jobId: job._id }, 'Job created');
+
         await this.queue.add('process-event', {
             jobId: job._id.toString(),
             userId,
         });
+
+        this.logger.info({ jobId: job._id }, 'Job queued');
 
         return {
             success: true,

@@ -3,6 +3,7 @@ import { Redis } from 'ioredis';
 import { TooManyRequestsException } from '../exceptions/too-many-requests.exception';
 import { REDIS } from '../config/concurrency.config';
 import { ConfigService } from '@nestjs/config';
+import { PinoLogger } from 'nestjs-pino';
 
 
 @Injectable()
@@ -13,8 +14,10 @@ export class ConcurrencyService {
         @Inject(REDIS)
         private readonly redis: Redis,
         private readonly config: ConfigService,
+        private readonly logger: PinoLogger
     ) {
         this.limit = this.config.getOrThrow<number>('concurrency.limit')
+        this.logger.setContext(ConcurrencyService.name)
     }
 
     public async acquire(userId: string): Promise<void> {
@@ -24,6 +27,7 @@ export class ConcurrencyService {
 
         if (current > this.limit) {
             await this.redis.decr(key);
+            this.logger.warn('Concurrency limit reached');
             throw new TooManyRequestsException('Too many active jobs');
         }
     }

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EventsModule } from './modules/events/events.module';
 import { RedisModule } from './common/concurrency/redis.module';
+
 import concurrencyConfig from './common/config/concurrency.config';
 import databaseConfig from './common/config/database.config';
+import { LoggingModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
@@ -23,8 +23,7 @@ import databaseConfig from './common/config/database.config';
 
     EventsModule,
     RedisModule,
+    LoggingModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule { }

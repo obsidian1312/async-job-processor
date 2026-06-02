@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { EventJobStatus } from './enum/event-job-status.enum';
 import { Model } from 'mongoose';
 import { EventJob, EventJobDocument } from './schema/event-job.schema';
-import { randomUUID } from 'node:crypto';
 import { InjectModel } from '@nestjs/mongoose';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { ConcurrencyService } from '../../common/concurrency/concurrency.service';
 
 @Injectable()
 export class EventsService {
@@ -14,31 +14,25 @@ export class EventsService {
         private readonly model: Model<EventJobDocument>,
         @InjectQueue('event-queue')
         private readonly queue: Queue,
+        private readonly concurrency: ConcurrencyService,
     ) { }
 
     public async createJob() {
+        const userId = this.getUserId();
+
+        await this.concurrency.acquire(userId);
+
         const job = await this.model.create({
-            userId: this.getUserId(),
+            userId,
             status: EventJobStatus.Pending,
             retries: 0,
             result: {},
         });
 
-        await this.queue.add(
-            'process-event',
-            {
-                jobId: job._id.toString(),
-            },
-            {
-                attempts: 4,
-                backoff: {
-                    type: 'exponential',
-                    delay: 1000,
-                },
-            },
-        );
-
-        console.log('JOB ADDED', job._id);
+        await this.queue.add('process-event', {
+            jobId: job._id.toString(),
+            userId,
+        });
 
         return {
             success: true,
@@ -75,6 +69,6 @@ export class EventsService {
     }
 
     private getUserId() {
-        return randomUUID();
+        return 'test-user';
     }
 }

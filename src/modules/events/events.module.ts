@@ -27,7 +27,7 @@ import concurrencyConfig from '../../common/config/concurrency.config';
       }),
     }),
     BullModule.registerQueue({
-      name: process.env.BULL_QUEUE_NAME! || 'event-queue',
+      name: 'event-queue',
     })
   ],
   controllers: [EventsController],
